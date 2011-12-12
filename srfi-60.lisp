@@ -63,40 +63,26 @@
 
 (defun |LOGICAL:ASH-4| (x)
   (if (minusp x)
-      (+ -1 (floor (+ 1 x) 16))
-      (floor x 16)))
+      (+ -1 (truncate (+ 1 x) 16))
+      (truncate x 16)))
 
 (declaim (ftype (function (function integer) function)
                 |LOGICAL:REDUCE|))
 
 (defun |LOGICAL:REDUCE| (op4 ident)
-  (declare (optimize (space 3)))
+  (declare (optimize (safety 0) (speed 3) (space 3)))
   (lambda (&rest args)
     (do ((res ident (funcall op4 res (car rgs) 1 0))
 	 (rgs args (cdr rgs)))
 	((null rgs) res))))
 
 ;@
-#|(setf (symbol-function 'logand)
-      (rnrs:letrec
-           ((lgand
-             (lambda (n2 n1 scl acc)
-               (cond ((= n1 n2) (+ acc (* scl n1)))
-                     ((zerop n2) acc)
-                     ((zerop n1) acc)
-                     (:else (lgand (|LOGICAL:ASH-4| n2)
-                                   (|LOGICAL:ASH-4| n1)
-                                   (* 16 scl)
-                                   (+ (* (svref (svref |LOGICAL:BOOLE-AND|
-                                                       (mod n1 16) )
-                                                (mod n2 16) )
-                                         scl )
-                                      acc )))))))
-        (|LOGICAL:REDUCE| lgand -1) ))|#
-
-#|(defun logand (&rest args)
-  (declare (optimize (space 3)))
+#+sbcl
+(defun logand (&rest args)
+  (declare (optimize (space 3))
+           (inline |LOGICAL:REDUCE|))
   (labels ((lgand (n2 n1 scl acc)
+             (declare (integer n2 n1))
              (cond ((= n1 n2) (+ acc (* scl n1)))
                    ((zerop n2) acc)
                    ((zerop n1) acc)
@@ -109,14 +95,16 @@
                                        scl )
                                     acc ))))))
     (apply (|LOGICAL:REDUCE| #'lgand -1)
-           args) ))|#
+           args) ))
 
+#-sbcl
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (setf (symbol-function 'logand) #'cl:logand))
 
 ;@
-#|(defun logior (&rest args)
-  (declare (optimize (safety 0) (speed 3) (debug 0)))
+#+sbcl
+(defun logior (&rest args)
+  (declare (inline |LOGICAL:REDUCE|))
   (labels ((lgior (n2 n1 scl acc)
              (cond ((= n1 n2) (+ acc (* scl n1)))
                    ((zerop n2) (+ acc (* scl n1)))
@@ -131,12 +119,15 @@
                                        scl)
                                     acc))))))
     (apply (|LOGICAL:REDUCE| #'lgior 0)
-           args )))|#
+           args )))
+
+#-sbcl
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (setf (symbol-function 'logior) #'cl:logior))
 
 ;@
-#|(defun logxor (&rest args)
+#+sbcl
+(defun logxor (&rest args)
   (labels ((lgxor (n2 n1 scl acc)
              (cond ((= n1 n2) acc)
                    ((zerop n2) (+ acc (* scl n1)))
@@ -150,8 +141,9 @@
                                        scl )
                                     acc ))))))
     (apply (|LOGICAL:REDUCE| #'lgxor 0)
-           args)) )|#
+           args)) )
 
+#-sbcl
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (setf (symbol-function 'logxor) #'cl:logxor))
 
