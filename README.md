@@ -1,5 +1,8 @@
-* SRFI 60: Integers as Bits
-** bit access and operations for integers for Scheme
+# SRFI 60 for CL: Integers as Bits
+
+* https://srfi.schemers.org/srfi-60
+
+## bit access and operations for integers for Scheme
 - Copyright (C) 1991, 1993, 2001, 2003, 2005 Aubrey Jaffer
 
 Permission to copy this software, to modify it, to redistribute it,

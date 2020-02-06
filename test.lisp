@@ -1,4 +1,4 @@
-(cl:in-package :srfi-60.internal)
+(cl:in-package "https://github.com/g000001/srfi-60#internals")
 
 (def-suite srfi-60)
 

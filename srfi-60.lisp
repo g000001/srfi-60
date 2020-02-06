@@ -1,6 +1,6 @@
 ;;;; srfi-60.lisp
 
-(cl:in-package :srfi-60.internal)
+(cl:in-package "https://github.com/g000001/srfi-60#internals")
 
 ;;;; "logical.scm", bit access and operations for integers for Scheme
 ;;; Copyright (C) 1991, 1993, 2001, 2003, 2005 Aubrey Jaffer
